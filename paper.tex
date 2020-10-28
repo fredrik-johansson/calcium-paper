@@ -125,7 +125,7 @@ when restricted to so-called \emph{computable numbers}
 (a real number $x$ is said to be \emph{computable} if
 there is a program
 which, given $n$, outputs some $x_n \in \mathbb{Q}$ with $|x - x_n| < 2^{-n}$).
-The problem is that equality only is semi-decidable: we can in general prove $x \ne y$,
+The problem is that equality is only semi-decidable: we can in general prove $x \ne y$,
 but not $x = y$, as a consequence of the halting theorem.
 Nevertheless,
 as the example of $\overline{\mathbb{Q}}$ shows,
@@ -580,7 +580,7 @@ The problem of choosing appropriate extension numbers arises in various situatio
 \end{itemize}
 
 We can attempt to set reasonable defaults, but a useful system
-must probably allow the user to make intelligent choices.
+should probably allow the user to make intelligent choices.
 It is very difficult to define meaningful canonical forms for general
 symbolic expressions, and the optimal
 form often depends on the application~\cite{Mos1971,Car2004}.
@@ -628,9 +628,9 @@ $\operatorname{Frac}(\mathbb{Q}[X_1,\ldots,X_n] / I)$.
 \subsubsection{Normal forms of fractions}
 
 When computing in formal fraction fields,
-we face one difficulty
+we face a difficulty
 which does not arise when merely considering
-formal quotient rings
+quotient rings
 $\mathbb{Q}[X_1,\ldots,X_n] / I$:
 a formal fraction $p / q$ need not be
 in a joint canonical form even if $p$ and $q$ are in canonical
@@ -640,8 +640,8 @@ A simple example is that $1/\sqrt{2} = \sqrt{2}/2$.
 This is harmless for deciding equality since
 reduction by $I$ will give a zero numerator of
 $p / q - r / s = (ps - rq)/(pq)$ for equivalent fractions $p/q$ and $r/s$.
-However, $p$ can have $q$ nontrivial
-common content
+However, $p$ and $q$ can have nontrivial
+common content in $\mathbb{Q}[X_1,\ldots,X_n] / I$
 even if they are coprime in $\mathbb{Q}[X_1,\ldots,X_n]$,
 and failing to remove such content can result in expression swell.
 This problem manifests itself, for example, in Gaussian elimination.
@@ -717,7 +717,7 @@ is the parent object for a
 ``Calcium field'', representing a lazily expanding subset of $\mathbb{C}$.
 It serves two purposes: it holds a cache of extension numbers
 and fields, and it specifies work limits and other settings.
-Exemples of configurable parameters in the context object include:
+Examples of configurable parameters in the context object include:
 the maximum precision for numerical evaluation,
 precision for LLL,
 the degree of algebraic number fields,
@@ -921,7 +921,7 @@ singular or undefined.
 
 The strategy we have discussed
 is essentially an attempt to unify several existing
-paradigms for exact compuation: \emph{effective real numbers},
+paradigms for exact computation: \emph{effective real numbers},
 \emph{symbolic expressions}, \emph{(embedded) number fields},
 and \emph{(embedded) quotient rings}. The novelty is not the combination
 of functionality (any general-purpose
@@ -932,7 +932,7 @@ computer algebra system supports the requisite operations), but the implementati
 There are many implementations of ``effective'' or ``computable'' numbers
 which construct a symbolic representation to permit
 lazy numerical evaluation to arbitrary precision, \emph{without} the
-ability to decide equality~\cite{vdH2006,vdH2006b,Mul2001}.
+ability to decide equality~\cite{vdH2006,vdH2006b,Mul2001,Yu2010}.
 Our representation is more powerful, but likely inferior
 if the only goal is numerical evaluation:
 symbolic computations are often slower,
@@ -979,12 +979,12 @@ and polynomial and ball arithmetic.
 \subsection{Algebraic numbers}
 
 Computing in $\overline{\mathbb{Q}}$ is a well-studied problem
-which admits multiple approaches~\cite{Coh1996}.
+which admits multiple approaches~\cite{Coh1996,Yu2010}.
 A generally useful principle is to rely on arithmetic
 in fixed number fields for efficiency.
 Calcium is partly inspired by
 Sage's \texttt{QQbar}, which uses a hybrid representation:
-an algebraic number is either as an
+an algebraic number exists either as an
 element of a number field $\mathbb{Q}(a)$ or
 an unevaluated symbolic expression.
 Numerical values are tracked rigorously using interval arithmetic.
@@ -1039,7 +1039,7 @@ The surface part of such a decision procedure is essentially Algorithm~\ref{alg:
 in which we iteratively attempt to either prove inequality
 or find an algebraic relation that implies equality.
 Assuming Schanuel's conjecture, it can be shown that any relation between
-elementary number must result from a combination of
+elementary numbers must result from a combination of
 log-linear relations, exp-multiplicative relations,
 and relations resulting from the identical
 vanishing of algebraic functions (for example, $\sqrt{(\log(2))^2} - \log(2) = 0$,
@@ -1179,7 +1179,7 @@ Some preprocessing strategies are discussed in \cite{BBK2014}.
 
 The PSLQ algorithm is often claimed to be superior to LLL for
 integer relations (see for example \cite{BBK2014}),
-but this not obviously true
+but this is not obviously true
 with modern floating-point LLL implementations.
 One benefit of LLL is that we obtain
 a matrix of all integer relations at once,
@@ -1204,13 +1204,11 @@ say by adding $\sqrt{2} + \sqrt{3} + \sqrt{5} + \ldots$,
 we construct all the intermediate
 fields $\mathbb{Q}(a_1)$, $\mathbb{Q}(a_1,a_2)$, \ldots, $\mathbb{Q}(a_1,\ldots,a_n)$,
 from scratch.
-This is doing nearly $n$ times more work than should be necessary.
-Here we can think of two solutions: one is to let
+This is doing nearly $n$ times more work than should be needed.
+One possible solution is to let
 the user write down a list of extension numbers
 and create $\mathbb{Q}(a_1,\ldots,a_n)$ at once for computations.
-This is perhaps less user-friendly unless
-it is automated behind an interface that delays evaluation.
-The other solution is to take advantage of the data that has
+Another solution is to take advantage of the data that has
 already been computed for
 $\mathbb{Q}(a_1,\ldots,a_{n-1})$
 to generate the data for $\mathbb{Q}(a_1,\ldots,a_n)$.
