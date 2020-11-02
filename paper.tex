@@ -184,8 +184,8 @@ of the result simplifies to $\mathbb{Q}$.
 Such examples are within the scope of the
 expression simplification tools in computer algebra systems like
 Mathematica and Maple.\footnote{Open source systems
-tend to perform much worse. For example, SymPy
-fails to simplify the last three examples.}
+tend to perform much worse: SymPy, for example,
+fails to simplify examples 3--5. Maple curiously also fails to simplify example 3.}
 The key difference is that we
 work with more structured representations;
 we also handle numerical evaluation and predicates rigorously.
@@ -1082,61 +1082,62 @@ and \url{http://fredrikj.net/blog/2020/09/benchmarking-exact-dft-computation/} f
 
 As a test of basic arithmetic and simplification,
 we check $\textbf{x} - \operatorname{DFT}^{-1}(\operatorname{DFT}(\textbf{x})) = \textbf{0}$
-where $\textbf{x} = (x_n)_{n=0}^{N-1}$ and $\hat x_n = \sum_{k=0}^{N-1} \omega^{-kn} x_k$
+where $\textbf{x} = (x_n)_{n=0}^{N-1}$ and $\operatorname{DFT}(\textbf{x}) = \sum_{k=0}^{N-1} \omega^{-kn} x_k$
 with $\omega = e^{2 \pi i / N}$. For this benchmark, we evaluate
 the DFT by naive $O(N^2)$ summation (no FFT).
 We test six input sequences exhibiting both algebraic and transcendental numbers.
 
-We compare with Sage's \texttt{QQbar} (algebraics only), Sage's \texttt{SR} (based on GiNaC),
-SymPy, and Mathematica (MMA). MMA was run on a faster computer in the free Wolfram Cloud, with a 1~min timeout
-("time"). Other systems were interrupted manually after several minutes.
-SymPy fails to prove equality unless $n = 2^k$, and Sage's \texttt{SR} fails except for $n = 2^k, 3, 5, 6, 10, 12, 20$.
-For large $n$, Calcium is typically 10 to 100 times faster than the second
-best system, which is Mathematica except for input $n+2$ (exercising arithmetic in a simple cyclotomic field) where
-the runner-up is Sage's \texttt{QQbar}.
-All timings are from an empty cache;
-most systems (including Calcium) run a second computation much faster,
+We compare with Sage's \texttt{QQbar} (algebraics only), Sage's \texttt{SR} (using GiNaC),
+SymPy, Maple, and Mathematica (MMA).
+MMA was run on a faster computer in the free Wolfram Cloud, with a 60~s timeout. Other systems were interrupted after $10^3$~s.
+Table~\ref{tab:dft} shows select timings;
+in most cases, we see order-of-magnitude speedups over
+the competing systems.
+All timings were done with empty caches;
+most systems (including Calcium) run faster a second time,
 but comparisons are difficult since
-different systems cache different kinds of data.
-Table~\ref{tab:dft} shows select timings.
-The test marked (*) only succeeds if we manually disable Gr\"{o}bner bases.
+the systems use caches differently.
+
+SymPy fails to prove equality unless $n = 2^k$, and Sage's \texttt{SR} fails except for $n = 2^k, 3, 5, 6, 10, 12, 20$;
+Maple (with \texttt{simplify()}) fails on the fourth test sequence for large $n$.
+The test case marked (*) only succeeds if we manually disable Gr\"{o}bner bases in Calcium.
 
 {\renewcommand{\arraystretch}{0.9}
 \begin{table}
 \caption{Time (s) for exact DFT and zero test.}
 \label{tab:dft}
-\begin{tabular}{ c c c c c c c }
-$x_n$  & $N$ & Sage $\overline{\mathbb{Q}}$ & Sage \texttt{SR} & SymPy & MMA & Calcium \\
+\begin{tabular}{ c c c c c c c c }
+$x_{n-2}$  & $N$ & \!\!Sage $\overline{\mathbb{Q}}$\!\! & \!\!Sage \texttt{SR}\!\! & \!\!SymPy\!\! & \!\!Maple\!\! & \!\!MMA\!\! & \!\!Calcium\!\! \\
  \hline
-\multirow{4}{*}{$n+2$} & 6   & 0.020 & 0.047 & fail & 0.078   & 0.00049 \\
-  & 8 & 0.033   & 0.11  & 1.1    & 0.057 & 0.00048 \\
-  & 16  & 0.15  & 36    & 9.9    & 0.27    & 0.00068 \\
-  & 20  & 0.22  & 124   & fail   & 0.96    & 0.00081 \\
-  & 100 & 9.2   & fail  & fail   & time & 0.045 \\
+\multirow{4}{*}{$n$} & 6   & 0.020 & 0.047 & fail & 0.016 & 0.078   & 0.00049 \\
+  & 8 & 0.033   & 0.11  & 1.1    & 0.0060 &  0.057 & 0.00048 \\
+  & 16  & 0.15  & 36    & 9.9    & 0.080 &  0.27    & 0.00068 \\
+  & 20  & 0.22  & 124   & fail   & 0.13 &  0.96    & 0.00081 \\
+  & 100 & 9.2   & fail  & fail   & 9.1 &  >60 & 0.045 \\
 \hline
-\multirow{4}{*}{$\sqrt{n+2}$} & 8  &   5.3  &   0.50  &   2.8   &  0.11  &   0.017 \\
- & 16  &   time  &   46  &   24  &   0.58   &  0.090 \\
- & 20  &   time  &   154 &    fail  &   2.3   &  0.17 \\
- & 100 &    time  &   fail  &   fail  &   time   &  38 \\
+\multirow{4}{*}{$\sqrt{n}$} & 8  &   5.3  &   0.50  &   2.8   & 0.046 &   0.11  &   0.017 \\
+ & 16  &   >$10^3$  &   46  &   24  & 0.26 &    0.58   &  0.090 \\
+ & 20  &   >$10^3$  &   154 &    fail  & 1.1 &    2.3   &  0.17 \\
+ & 100 &    >$10^3$  &   fail  &   fail  & >$10^3$ &    >60   &  38 \\
 \hline
-\multirow{4}{*}{$\log(n+2)$\!\!\!\!} & 8  &   -  &   0.20  &   1.8   &  0.29  &   0.0059 \\
- & 16  &   -  &   44  &   17 &    0.66  &   0.025 \\
- & 20  &   -  &   136   &  fail  &   45  &   0.046 \\
- & 100  &   - &    fail   &  fail  &   time  &   26 \\
+\multirow{4}{*}{$\log(n)$\!\!\!\!} & 8  &   -  &   0.20  &   1.8   & 0.044 &   0.29  &   0.0059 \\
+ & 16  &   -  &   44  &   17 & 0.37 &     0.66  &   0.025 \\
+ & 20  &   -  &   136   &  fail  & 0.74 &    45  &   0.046 \\
+ & 100  &   - &    fail   &  fail  &  >$10^3$ &   >60  &   26 \\
 \hline
-\multirow{4}{*}{\!\!$e^{2\pi i/(n+2)}$\!\!\!\!\!\!} & 8  &   time  &   1.3  &   fail  &   0.10  &   0.019 \\
-  & 16  &   time  &   78   &  time  &   0.41  &   0.32 \\
-  & 20  &   time  &   277   &  fail  &   time  &   1.1 \\
-  & 100 &    time  &   fail  &   fail  &   time  &   699* \\
+\multirow{4}{*}{\!\!$e^{2\pi i/n}$\!\!\!\!\!\!} & 8  &   >$10^3$  &   1.3  &   fail  &  0.042 &   0.10  &   0.019 \\
+  & 16  &   >$10^3$  &   78   &  >$10^3$  &  0.17 &   0.41  &   0.32 \\
+  & 20  &   >$10^3$  &   277   &  fail  &   fail &  >60  &   1.1 \\
+  & 100 &    >$10^3$  &   fail  &   fail  &  >$10^3$ &   >60  &   699* \\
 \hline
-\multirow{4}{*}{\!\!$\frac{1}{1-(n+2)\pi}$\!\!\!\!\!\!} & 8  &   -   &  0.68  &   17  &   0.21  &   0.0041 \\
-  & 16  &   -   &  48  &   time  &   6.4  &   0.046 \\
-  & 20  &   -   &  167   &  fail  &   time  &   0.12 \\
-  & 100  &   -  &   fail   &  fail  &   time  &   216 \\
+\multirow{4}{*}{\!\!$\frac{1}{1+n\pi}$\!\!\!\!\!\!} & 8  &   -   &  0.68  &   17  &  0.072 &   0.21  &   0.0041 \\
+  & 16  &   -   &  48  &   >$10^3$  &  0.32 &   6.4  &   0.046 \\
+  & 20  &   -   &  167   &  fail  &  2.4 &   >60  &   0.12 \\
+  & 100  &   -  &   fail   &  fail  &  >$10^3$ &   >60  &   216 \\
 \hline
-\multirow{4}{*}{\!\!$\frac{1}{1+\sqrt{n+2} \pi}$\!\!\!\!\!\!} & 8  &   -  &   0.76  &   22  &   2.6 &    0.082 \\
-  & 16  &   -  &   time   &  time  &   time  &   8.1 \\
-  & 20  &   -  &   fail   &  fail   &  time  &   43 \\
+\multirow{4}{*}{\!\!$\frac{1}{1+\sqrt{n} \pi}$\!\!\!\!\!\!} & 8  &   -  &   0.76  &   22  &  0.074 &   2.6 &    0.082 \\
+  & 16  &   -  &   >$10^3$   &  >$10^3$  &  127 &   >60  &   8.1 \\
+  & 20  &   -  &   fail   &  fail   &  >$10^3$ &  >60  &   43 \\
 \end{tabular}
 \end{table}
 }
@@ -1145,15 +1146,22 @@ $x_n$  & $N$ & Sage $\overline{\mathbb{Q}}$ & Sage \texttt{SR} & SymPy & MMA & C
 
 Example 1 in \cite{BBK2014} asks for simplifying $C_1 = -\frac{1}{8} i \pi \log^{2}(\frac{2}{3} - \frac{2 i}{3}) + \frac{1}{8} i \pi \log^{2}(\frac{2}{3} + \frac{2 i}{3}) + \frac{1}{12} {\pi}^{2} \log(-1 - i) + \frac{1}{12} {\pi}^{2} \log(-1 + i) + \frac{1}{12} {\pi}^{2} \log(\frac{1}{3} - \frac{i}{3}) + \frac{1}{12} {\pi}^{2} \log(\frac{1}{3} + \frac{i}{3})$.
 %a problem similar to simplifying $4 \operatorname{atan}(\tfrac{1}{5}) - \operatorname{atan}(\tfrac{1}{239})$ ($ = \tfrac{\pi}{4}$).
-Calcium evaluates this expression to
-$$C_1 = \frac{4 \log(\frac{1 - i}{3}) {\pi}^{2} - 8 \log(\frac{-1 - i}{3}) {\pi}^{2} - 5 {\pi}^{3} i}{96}$$
-in which redundant logarithms have been eliminated.
+Calcium evaluates this to
+$\tfrac{1}{96} (4 \log(\frac{1 - i}{3}) {\pi}^{2} - 8 \log(\frac{-1 - i}{3}) {\pi}^{2} - 5 {\pi}^{3} i)$,
+eliminating redundant logarithms.
 Calcium does not discover $C_1 = -\tfrac{1}{48} \pi^2 \log(18)$ (the output of Mathematica's \texttt{FullSimplify})
-since it does not currently rewrite the extension numbers, but
+since it does not rewrite the extension numbers, but
 it proves equality when this form is given ($C_1 + \tfrac{1}{48} \pi^2 \log(18)$ evaluates to 0).
-Calcium takes 0.008~s, or 0.00008~s when the fields are already cached.
+Calcium takes 0.008~s, or 0.00008~s when the fields are already cached;
 Mathematica's \texttt{Simplify} takes 0.015~s
 and leaves $C_1$ unsimplified but proves $C_1 + \tfrac{1}{48} \pi^2 \log(18) = 0$ in 0.02~s, while \texttt{FullSimplify} takes 0.03~s.
+
+Maple's \texttt{simplify} returns $-\tfrac{1}{48} \pi^2 (\log(2) + 2 \log(3))$ in 0.000024~s.
+Indeed, this is a trivial computation if we (like Maple) atomize
+the logarithms.
+Since this is not yet implemented in Calcium,
+we see the result of the slower, generic approach
+using integer relations.
 
 \section{Future work ideas}
 
