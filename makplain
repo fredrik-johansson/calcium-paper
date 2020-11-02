@@ -1,0 +1,5 @@
+latex paperplain
+bibtex paperplain
+latex paperplain
+latex paperplain
+pdflatex paperplain
